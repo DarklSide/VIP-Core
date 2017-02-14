@@ -1,3 +1,4 @@
+								
 DB_OnPluginStart()
 {
 	DB_Connect();
@@ -21,15 +22,15 @@ DB_Connect()
 	
 	GLOBAL_INFO |= IS_LOADING;
 
-	if (SQL_CheckConfig("vip"))
+	if (SQL_CheckConfig("vip_core"))
 	{
-		SQL_TConnect(OnDBConnect, "vip", 1);
+		SQL_TConnect(OnDBConnect, "vip_core", 1);
 	}
 	else
 	{
 		decl String:sError[256];
 		sError[0] = '\0';
-		g_hDatabase = SQLite_UseDatabase("vip", sError, sizeof(sError));
+		g_hDatabase = SQLite_UseDatabase("vip_core", sError, sizeof(sError));
 		OnDBConnect(g_hDatabase, g_hDatabase, sError, 0);
 	}
 }
@@ -65,7 +66,7 @@ public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data
 			SQL_SetCharset(g_hDatabase, "utf8");
 		}
 
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
+	//	SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
 		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
 	}
@@ -94,15 +95,10 @@ CreateTables()
 	SQL_LockDatabase(g_hDatabase);
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET \"UTF8\"");
 		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 																		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
 																		`auth` VARCHAR(64) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` TINYINT(2) UNSIGNED NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		PRIMARY KEY (`id`), \
 																		UNIQUE KEY `auth_id` (`auth`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 
@@ -115,10 +111,6 @@ CreateTables()
 																		UNIQUE KEY `user_id` (`user_id`, `server_id`), \
 																		CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vip_users` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE\
 																		) DEFAULT CHARSET=utf8;");
-		/*
-		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
-		*/
 	}
 	else
 	{
@@ -126,20 +118,16 @@ CreateTables()
 																		`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 																		`auth` VARCHAR(32) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` INTEGER NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		`group` VARCHAR(64) default NULL, \
 																		`expires` INTEGER NOT NULL default '0');");
 	}
-//			`ip` VARCHAR(32) default NULL, 
+
 	SQL_UnlockDatabase(g_hDatabase);
 	
 	GLOBAL_INFO &= ~IS_LOADING;
 
 	OnReadyToStart();
 
-//	SQL_SetCharset(g_hDatabase, "utf8");
 	UTIL_ReloadVIPPlayers(0, false);
 	
 	if(g_CVAR_iDeleteExpired != -1)
@@ -164,46 +152,22 @@ enum VIP_AuthType
 	AUTH_GROUP,
 	AUTH_FLAGS
 }
-
-"CREATE TABLE IF NOT EXISTS `vip_users` (\
-`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
-`auth` VARCHAR(32) UNIQUE NULL default NULL, \
-`name` VARCHAR(64) NOT NULL default 'unknown', \
-`ip` VARCHAR(32) default NULL, \
-`auth_type` INT(3) NOT NULL default '0', \
-`pass_key` VARCHAR(64) default NULL, \
-`password` VARCHAR(64) default NULL, \
-`group` VARCHAR(64) default NULL, \
-`expires` INT(11) UNSIGNED NOT NULL default '0'");
 */
 
 DB_UpdateClientName(iClient)
 {
 	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-	decl Handle:hStmt, String:sError[256];
+	decl Handle:hStmt, Handle:hDataPack, String:sError[256];
+	
+	hDataPack = CreateDataPack();
+	hStmt = INVALID_HANDLE;
 
-	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
-	if (hStmt != INVALID_HANDLE)
+	ADD_PARAM_STR(hDataPack, sName)
+	ADD_PARAM_INT(hDataPack, 0)
+	if(ExecuteQuery("UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", hStmt, hDataPack, SZF(sError)))
 	{
-		decl String:sName[MAX_NAME_LENGTH], iClientID;
-		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
-		GetClientName(iClient, SZF(sName));
-
-		SQL_BindParamString(hStmt, 0, sName, false);	
-		SQL_BindParamInt(hStmt, 1, iClientID, false);
-
-		if (!SQL_Execute(hStmt))
-		{
-			SQL_GetError(hStmt, SZF(sError));
-			LogError("[VIP Core] Fail SQL_Execute: %s", sError);
-		}
-
 		CloseHandle(hStmt);
-	}
-	else
-	{
-		LogError("[VIP Core] Fail SQL_PrepareQuery: %s", sError);
 	}
 }
 
@@ -297,32 +261,6 @@ public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sEr
 		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery, iClientID);
 	}
 }
-/*
-public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClientID)
-{
-	if (sError[0])
-	{
-		LogError("SQL_Callback_DeleteExpired: %s", sError);
-		return;
-	}
-
-	if(SQL_GetAffectedRows(hOwner))
-	{
-		if(g_CVAR_iDeleteExpired != -1)
-		{
-			decl String:sQuery[256];
-			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
-			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
-
-			if(g_CVAR_bLogsEnable)
-			{
-				LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClientID);
-			//	LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClient, iClientID);
-			}
-		}
-	}
-}
-*/
 
 RemoveExpiredPlayers()
 {
@@ -373,4 +311,55 @@ public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const Str
 			}
 		}
 	}
+}
+
+
+bool:DB_ExecuteQuery(const String:sQuery[], &Handle:hStmt, &Handle:hDataPack, String:sError[], iErrLen)
+{
+	if(hStmt = INVALID_HANDLE)
+	{
+		CloseHandle(hStmt);
+	}
+
+	LogMessage("[VIP Core] ExecuteQuery(%s)", sQuery);
+	hStmt = SQL_PrepareQuery(g_hDatabase, sQuery, sError, iErrLen);
+	if (hStmt != INVALID_HANDLE)
+	{
+		ResetPack(hDataPack);
+		decl index, String:sBuffer[64];
+		
+		index = 0;
+		while(IsPackReadable(hDataPack, 4))
+		{
+			switch(ReadPackCell(hDataPack))
+			{
+				case PARAM_INT:
+				{
+					SQL_BindParamInt(hStmt, index++, ReadPackCell(hDataPack), false);
+				}
+				case PARAM_STR:
+				{
+					ReadPackString(hDataPack, sBuffer, sizeof(sBuffer));
+					LogMessage("[VIP Core] BindParamString(%i) = '%s'", index, sBuffer);
+					SQL_BindParamString(hStmt, index++, sBuffer, true);
+				}
+			}
+		}
+
+		CloseHandle(hDataPack);
+
+		if (!SQL_Execute(hStmt))
+		{
+			SQL_GetError(hStmt, sError, iErrLen);
+			LogError("[VIP Core] Fail SQL_Execute: %s", sError);
+			CloseHandle(hStmt);
+			return false;
+		}
+		
+		return true;
+	}
+
+	LogError("[VIP Core] Fail SQL_PrepareQuery: %s", sError);
+
+	return false;
 }

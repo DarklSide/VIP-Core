@@ -9,16 +9,6 @@ public OnConfigsExecuted()
 	}
 }
 
-public Action:VIPAdmin_CMD(iClient, args)
-{
-	if(iClient)
-	{
-		DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
-	}
-
-	return Plugin_Handled;
-}
-
 public Action:ReloadVIPPlayers_CMD(iClient, args)
 {
 	if(iClient && !(GetUserFlagBits(iClient) & g_CVAR_iAdminFlag))
@@ -57,29 +47,17 @@ public Action:AddVIP_CMD(iClient, args)
 
 	if(args < 2)
 	{
-		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam|ip|name> <steam_id|ip|name|#userid> [time] [group]", "INCORRECT_USAGE");
+		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam_id|name|#userid> [time] [group]", "INCORRECT_USAGE");
 		return Plugin_Handled;
 	}
 	
-	decl String:sAuth[64], VIP_AuthType:AuthType;
+	decl String:sAuth[64], iTarget;
 	GetCmdArg(1, sAuth, sizeof(sAuth));
-
-	if(!strcmp(sAuth, "steam"))		AuthType = AUTH_STEAM;
-	else if(!strcmp(sAuth, "ip"))	AuthType = AUTH_IP;
-	else if(!strcmp(sAuth, "name"))	AuthType = AUTH_NAME;
-	else
-	{
-		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_ID");
-		return Plugin_Handled;
-	}
-
-	decl iTarget;
-	GetCmdArg(2, sAuth, sizeof(sAuth));
 
 	iTarget = FindTarget(iClient, sAuth, true, false);
 	if(iTarget != -1)
 	{
-		if(g_iClientInfo[iTarget] & IS_VIP || g_iClientInfo[iTarget] & IS_AUTHORIZED)
+		if(g_iClientInfo[iTarget] & IS_VIP)
 		{
 			ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 			return Plugin_Handled;

@@ -3,11 +3,11 @@
 #include <sourcemod>
 #include <vip_core>
 #include <clientprefs>
-/*
+
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #define REQUIRE_PLUGIN
-*/
+
 #define DEBUG_MODE 0
 
 #define VIP_VERSION	"2.1.2 #2 DEV"
@@ -60,7 +60,6 @@ public OnPluginStart()
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
 
-	g_hHookPlugins = CreateArray();
 	GLOBAL_ARRAY	= CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE	= CreateTrie();
 	ReadConfigs();
@@ -68,13 +67,6 @@ public OnPluginStart()
 	g_hVIPMenu = CreateMenu(Handler_VIPMenu, MenuAction_Start|MenuAction_Display|MenuAction_Cancel|MenuAction_Select|MenuAction_DisplayItem|MenuAction_DrawItem);
 
 	AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-	
-	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
-
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_list");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
 
 	CreateCvars();
 	CreateForwards();
@@ -86,8 +78,6 @@ public OnPluginStart()
 
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say_team");
-
-	RegAdminCmd("sm_vipadmin",			VIPAdmin_CMD, ADMFLAG_ROOT);
 	
 	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
 	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
@@ -95,15 +85,16 @@ public OnPluginStart()
 	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
 
 	g_GameType = UTIL_GetGameType();
-/*
+
 	if(LibraryExists("adminmenu"))
 	{
 		decl Handle:hTopMenu;
-		if((hTopMenu = GetAdminTopMenu()))
+		hTopMenu = GetAdminTopMenu();
+		if(hTopMenu != INVALID_HANDLE)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
-	}*/
+	}
 }
 
 public OnAllPluginsLoaded()

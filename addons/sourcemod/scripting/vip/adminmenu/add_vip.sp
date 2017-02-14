@@ -48,7 +48,7 @@ public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, I
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if(Item == MenuCancel_ExitBack && g_hTopMenu != INVALID_HANDLE) DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{
@@ -155,9 +155,9 @@ public MenuHandler_AddVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, I
 			{
 				decl String:sGroup[MAX_NAME_LENGTH];
 				GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
-				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", GetArrayCell(g_ClientData[iClient], DATA_TIME), VIP_AuthType:GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE), sGroup);
+				UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, _, GetArrayCell(g_ClientData[iClient], DATA_TIME), sGroup);
 				//CloseHandleEx(g_ClientData[iClient]);
-				DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+				DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
 			} else VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
 		}
 	}

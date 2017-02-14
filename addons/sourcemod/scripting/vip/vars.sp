@@ -13,16 +13,25 @@
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
 #define IS_VIP						(1<<0)	// VIP ли игрок
-#define IS_AUTHORIZED				(1<<1)	// Авторизирован ли игрок
-#define IS_LOADED						(1<<2)	// Загружен ли игрок
-#define IS_WAIT_CHAT_PASS			(1<<3)	// Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH		(1<<4)	// Ожидается ввод значения для поиска в чат
-#define IS_SPAWNED					(1<<5)	// Игрок возродился
-#define IS_MENU_OPEN					(1<<6)	// VIP-меню открыто
+#define IS_LOADED						(1<<1)	// Загружен ли игрок
+#define IS_WAIT_CHAT_PASS			(1<<2)	// Ожидается ввод пароля в чат
+#define IS_WAIT_CHAT_SEARCH		(1<<3)	// Ожидается ввод значения для поиска в чат
+#define IS_SPAWNED					(1<<4)	// Игрок возродился
+#define IS_MENU_OPEN					(1<<5)	// VIP-меню открыто
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL						(1<<1)
 #define IS_LOADING					(1<<2)
+
+
+#define PARAM_INT		0
+#define PARAM_STR		1
+
+#define ADD_PARAM_INT(%0,%1) 	WritePackCell(%0, PARAM_INT);\
+									WritePackCell(%0, %1);
+
+#define ADD_PARAM_STR(%0,%1) 	WritePackCell(%0, PARAM_STR);\
+									WritePackString(%0, %1);
 
 
 #define	KEY_CID			"ClientID"
@@ -89,21 +98,13 @@ enum GameType
 
 #define FEATURE_NAME_LENGTH 64
 
-// new bool:g_bIsVIPLoaded = false;
-
 new const String:g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
-
-// new bool:g_bDBMySQL;
-
-new Handle:g_hHookPlugins;
 
 new Handle:g_hGroups;
 new Handle:g_hDatabase;
 
-/*new Handle:g_hTopMenu;
-*/
+new Handle:g_hTopMenu;
 new Handle:g_hVIPMenu;
-new Handle:g_hVIPAdminMenu;
 new Handle:g_hSortArray;
 
 new Handle:g_hFeatures[MAXPLAYERS+1];
@@ -122,7 +123,6 @@ new 		g_CVAR_iTimeMode;
 new			g_CVAR_iDeleteExpired;
 new Float:	g_CVAR_fSpawnDelay;
 new bool:	g_CVAR_bAutoOpenMenu;
-new bool:	g_CVAR_bKickNotAuthorized;
 new bool:	g_CVAR_bUpdateName;
 new bool:	g_CVAR_bHideNoAccessItems;
 new bool:	g_CVAR_bLogsEnable;
@@ -134,7 +134,5 @@ new Handle:g_hGlobalForward_OnClientLoaded;
 new Handle:g_hGlobalForward_OnVIPClientLoaded;
 new Handle:g_hGlobalForward_OnVIPClientRemoved;
 new Handle:g_hGlobalForward_OnPlayerSpawn;
-new Handle:g_hPrivateForward_OnPlayerSpawn;
-/*
+
 new TopMenuObject:VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-*/

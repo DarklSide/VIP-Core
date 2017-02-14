@@ -59,7 +59,7 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if(Item == MenuCancel_ExitBack && g_hTopMenu != INVALID_HANDLE) DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{

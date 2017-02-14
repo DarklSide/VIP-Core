@@ -1,4 +1,3 @@
-/*
 public OnLibraryRemoved(const String:sLibraryName[])
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0) 
@@ -9,7 +8,6 @@ public OnLibraryRemoved(const String:sLibraryName[])
 
 public OnAdminMenuReady(Handle:hTopMenu)
 {
-	LogMessage("OnAdminMenuReady:: g_hTopMenu = %x, hTopMenu = %x", g_hTopMenu, hTopMenu);
 	if (g_hTopMenu == hTopMenu)
 	{
 		return;
@@ -22,19 +20,15 @@ public OnAdminMenuReady(Handle:hTopMenu)
 
 AddItemsToTopMenu()
 {
-	LogMessage("AddItemsToTopMenu:: VIPAdminMenuObject = %i", VIPAdminMenuObject);
-	LogMessage("AddItemsToTopMenu:: g_CVAR_iAdminFlag = %i, %b", g_CVAR_iAdminFlag, g_CVAR_iAdminFlag);
-
 	if(VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
-		VIPAdminMenuObject = AddToTopMenu(g_hTopMenu, "vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", ADMFLAG_ROOT);
-		LogMessage("AddItemsToTopMenu:: VIPAdminMenuObject = %i", VIPAdminMenuObject);
+		VIPAdminMenuObject = AddToTopMenu(g_hTopMenu, "vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", g_CVAR_iAdminFlag);
 	}
 
-	AddToTopMenu(g_hTopMenu, "vip_add",				TopMenuObject_Item, Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_list",				TopMenuObject_Item, Handler_MenuVIPList,				VIPAdminMenuObject, "vip_list",			ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_players",	TopMenuObject_Item, Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_settings",	TopMenuObject_Item, Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	ADMFLAG_ROOT);
+	AddToTopMenu(g_hTopMenu, "vip_add",				TopMenuObject_Item, Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				g_CVAR_iAdminFlag);
+	AddToTopMenu(g_hTopMenu, "vip_list",				TopMenuObject_Item, Handler_MenuVIPList,				VIPAdminMenuObject, "vip_list",			g_CVAR_iAdminFlag);
+	AddToTopMenu(g_hTopMenu, "vip_reload_players",	TopMenuObject_Item, Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	g_CVAR_iAdminFlag);
+	AddToTopMenu(g_hTopMenu, "vip_reload_settings",	TopMenuObject_Item, Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	g_CVAR_iAdminFlag);
 }
 
 public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
@@ -98,66 +92,6 @@ public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenu
 			RedisplayAdminMenu(g_hTopMenu, iClient);
 		}
 	}
-}
-*/
-
-public Handler_VIPAdminMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
-{
-	switch(action)
-	{
-		case MenuAction_Display:
-		{
-			decl String:sTitle[128];
-			FormatEx(sTitle, sizeof(sTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
-			SetPanelTitle(Handle:iOption, sTitle);
-		}
-		case MenuAction_DisplayItem:
-		{
-			decl String:sDisplay[128];
-			
-			switch(iOption)
-			{
-				case 0:	FormatEx(sDisplay, sizeof(sDisplay), "%T", "MENU_ADD_VIP", iClient);
-				case 1:	FormatEx(sDisplay, sizeof(sDisplay), "%T", "MENU_LIST_VIP", iClient);
-				case 2:	FormatEx(sDisplay, sizeof(sDisplay), "%T", "ADMIN_MENU_RELOAD_VIP_PLAYES", iClient);
-				case 3:	FormatEx(sDisplay, sizeof(sDisplay), "%T", "ADMIN_MENU_RELOAD_VIP_CFG", iClient);
-			}
-
-			return RedrawMenuItem(sDisplay);
-		}
-		
-		case MenuAction_Select:
-		{
-			switch(iOption)
-			{
-				case 0:
-				{
-					InitiateDataArray(iClient);
-					SetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE, MENU_TYPE_ADD);
-					ShowAddVIPMenu(iClient);
-				}
-				case 1:
-				{
-					InitiateDataArray(iClient);
-					ShowVipPlayersListMenu(iClient);
-				}
-				case 2:
-				{
-					ReloadVIPPlayers_CMD(iClient, 0);
-
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
-				}
-				case 3:
-				{
-					ReloadVIPCfg_CMD(iClient, 0);
-
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
-				}
-			}
-		}
-	}
-
-	return 0;
 }
 
 InitiateDataArray(iClient)
@@ -265,7 +199,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 				else
 				{
 					VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+					if(g_hTopMenu != INVALID_HANDLE) DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
 				}
 				
 			}

@@ -48,7 +48,7 @@ public MenuHandler_DeleteVipPlayerMenu(Handle:hMenu, MenuAction:action, iClient,
 				ReplyToCommand(iClient, "%t", "ADMIN_VIP_IDENTITY_DELETED", sBuffer);
 				if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_VIP_IDENTITY_DELETED", iClient, iClient, sBuffer);
 			}
-			DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
 		}
 	}
 }

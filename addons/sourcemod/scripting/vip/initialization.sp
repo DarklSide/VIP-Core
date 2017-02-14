@@ -63,17 +63,6 @@ ReadConfigs()
 		}
 	}
 
-	iSize = GetArraySize(g_hHookPlugins);
-	if(iSize > 0)
-	{
-		for(i=0; i < iSize; ++i)
-		{
-			RemoveAllFromForward(g_hPrivateForward_OnPlayerSpawn, Handle:GetArrayCell(g_hHookPlugins, i));
-		}
-	}
-
-	ClearArray(g_hHookPlugins);
-
 	UTIL_CloseHandleEx(g_hGroups);
 
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
