@@ -158,14 +158,17 @@ DB_UpdateClientName(iClient)
 {
 	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-	decl Handle:hStmt, Handle:hDataPack, String:sError[256];
+	decl Handle:hStmt, Handle:hDataPack, String:sError[256], String:sName[MAX_NAME_LENGTH], iClientID;
 	
 	hDataPack = CreateDataPack();
 	hStmt = INVALID_HANDLE;
 
+	GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+	GetClientName(iClient, SZF(sName));
+
 	ADD_PARAM_STR(hDataPack, sName)
-	ADD_PARAM_INT(hDataPack, 0)
-	if(ExecuteQuery("UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", hStmt, hDataPack, SZF(sError)))
+	ADD_PARAM_INT(hDataPack, iClientID)
+	if(DB_ExecuteQuery("UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", hStmt, hDataPack, SZF(sError)))
 	{
 		CloseHandle(hStmt);
 	}
@@ -316,7 +319,7 @@ public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const Str
 
 bool:DB_ExecuteQuery(const String:sQuery[], &Handle:hStmt, &Handle:hDataPack, String:sError[], iErrLen)
 {
-	if(hStmt = INVALID_HANDLE)
+	if(hStmt == INVALID_HANDLE)
 	{
 		CloseHandle(hStmt);
 	}

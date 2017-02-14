@@ -69,12 +69,12 @@ public Action:AddVIP_CMD(iClient, args)
 		iTarget = 0;
 	}
 
-	decl String:sBuffer[64];
+	decl String:sGroup[64];
 	new iTime = 0;
 	if(args > 2)
 	{
-		GetCmdArg(3, sBuffer, sizeof(sBuffer));
-		StringToIntEx(sBuffer, iTime);
+		GetCmdArg(3, sGroup, sizeof(sGroup));
+		StringToIntEx(sGroup, iTime);
 		if(iTime < 0)
 		{
 			ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
@@ -82,18 +82,18 @@ public Action:AddVIP_CMD(iClient, args)
 		}
 	}
 
-	sBuffer[0] = 0;
+	sGroup[0] = 0;
 	if(args > 3)
 	{
-		GetCmdArg(4, sBuffer, sizeof(sBuffer));
-		if(sBuffer[0] && UTIL_CheckValidVIPGroup(sBuffer) == false)
+		GetCmdArg(4, sGroup, sizeof(sGroup));
+		if(sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
 		{
 			ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
 			return Plugin_Handled;
 		}
 	}
 
-	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sAuth, UTIL_TimeToSeconds(iTime), AuthType, sBuffer);
+	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sAuth, _, UTIL_TimeToSeconds(iTime), sGroup);
 
 	return Plugin_Handled;
 }
@@ -176,10 +176,6 @@ public Action:VIPMenu_CMD(iClient, args)
 			}
 			else
 			{
-				/*
-				PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
-				*/
-
 				PlaySound(iClient, NO_ACCESS_SOUND);
 				DisplayClientInfo(iClient, "no_access_info");
 			}

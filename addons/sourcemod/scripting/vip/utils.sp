@@ -309,7 +309,7 @@ bool:UTIL_ADD_VIP_PLAYER(const iClient = -1, const iTarget = 0, const String:sSo
 	}
 	else
 	{
-		strcopy(sAuth, sizeof(sAuth), sIdentity);
+		strcopy(sAuth, sizeof(sAuth), sSourceAuth);
 		strcopy(sName, sizeof(sName), sSourceName[0] ? sSourceName:"unknown");
 	}
 	
@@ -318,7 +318,7 @@ bool:UTIL_ADD_VIP_PLAYER(const iClient = -1, const iTarget = 0, const String:sSo
 	hDataPack = CreateDataPack();
 	hStmt = INVALID_HANDLE;
 
-	if (g_bMySQL)
+	if (GLOBAL_INFO & IS_MySQL)
 	{
 		ADD_PARAM_STR(hDataPack, sAuth)
 		if(DB_ExecuteQuery("SELECT `id` FROM `vip_users` WHERE `auth` = ? LIMIT 1;", hStmt, hDataPack, SZF(sError)))
@@ -388,11 +388,15 @@ bool:UTIL_ADD_VIP_PLAYER(const iClient = -1, const iTarget = 0, const String:sSo
 	{
 		ResetPack(hDataPack);
 	
-		decl String:sExpires[64], String:sTime[64];
+		decl String:sExpires[64], String:sTime[64], String:sGroup2[64];
 
 		if(sGroup[0] == '\0')
 		{
-			FormatEx(sGroup, sizeof(sGroup), "%T", "NONE", iClient);
+			FormatEx(sGroup2, sizeof(sGroup2), "%T", "NONE", iClient);
+		}
+		else
+		{
+			strcopy(sGroup2, sizeof(sGroup2), sGroup);
 		}
 
 		if(iTime)

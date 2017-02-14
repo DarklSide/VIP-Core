@@ -103,7 +103,6 @@ new const String:g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 new Handle:g_hGroups;
 new Handle:g_hDatabase;
 
-new Handle:g_hTopMenu;
 new Handle:g_hVIPMenu;
 new Handle:g_hSortArray;
 
@@ -134,5 +133,3 @@ new Handle:g_hGlobalForward_OnClientLoaded;
 new Handle:g_hGlobalForward_OnVIPClientLoaded;
 new Handle:g_hGlobalForward_OnVIPClientRemoved;
 new Handle:g_hGlobalForward_OnPlayerSpawn;
-
-new TopMenuObject:VIPAdminMenuObject = INVALID_TOPMENUOBJECT;

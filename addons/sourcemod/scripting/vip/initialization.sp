@@ -27,7 +27,7 @@ ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
 
-	decl String:sFeatureName[255], Handle:hArray, i, iSize;
+	decl String:sFeatureName[255], Handle:hFile;
 
 	if (g_hSortArray != INVALID_HANDLE)
 	{
@@ -36,12 +36,12 @@ ReadConfigs()
 	}
 
 	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
-	hArray = OpenFile(sFeatureName, "r");
-	if (hArray != INVALID_HANDLE)
+	hFile = OpenFile(sFeatureName, "r");
+	if (hFile != INVALID_HANDLE)
 	{
 		g_hSortArray = CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
-		while (!IsEndOfFile(hArray) && ReadFileLine(hArray, sFeatureName, FEATURE_NAME_LENGTH))
+		while (!IsEndOfFile(hFile) && ReadFileLine(hFile, sFeatureName, FEATURE_NAME_LENGTH))
 		{
 			DebugMessage("ReadFileLine: %s", sFeatureName)
 			TrimString(sFeatureName);
@@ -52,7 +52,7 @@ ReadConfigs()
 			}
 		}
 
-		CloseHandle(hArray);
+		CloseHandle(hFile);
 		
 		DebugMessage("GetArraySize: %i", GetArraySize(g_hSortArray))
 		

@@ -4,13 +4,9 @@
 #include <vip_core>
 #include <clientprefs>
 
-#undef REQUIRE_PLUGIN
-#include <adminmenu>
-#define REQUIRE_PLUGIN
-
 #define DEBUG_MODE 0
 
-#define VIP_VERSION	"2.1.2 #2 DEV"
+#define VIP_VERSION	"2.2.0 DEV"
 
 public Plugin:myinfo =
 {
@@ -44,7 +40,6 @@ stock DebugMsg(const String:sMsg[], any:...)
 #include "vip/db.sp"
 #include "vip/initialization.sp"
 #include "vip/cvars.sp"
-#include "vip/adminmenu.sp"
 #include "vip/vipmenu.sp"
 #include "vip/api.sp"
 #include "vip/cmds.sp"
@@ -76,58 +71,15 @@ public OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEventEx("cs_match_end_restart", Event_MatchEndRestart, EventHookMode_PostNoCopy);
 
-	AddCommandListener(Command_Say, "say");
-	AddCommandListener(Command_Say, "say_team");
-	
 	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
 	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
 	RegConsoleCmd("sm_addvip",			AddVIP_CMD);
 	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
 
 	g_GameType = UTIL_GetGameType();
-
-	if(LibraryExists("adminmenu"))
-	{
-		decl Handle:hTopMenu;
-		hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != INVALID_HANDLE)
-		{
-			OnAdminMenuReady(hTopMenu);
-		}
-	}
 }
 
 public OnAllPluginsLoaded()
 {
 	DB_OnPluginStart();
-}
-
-public Action:Command_Say(iClient, const String:sCommand[], iArgs)
-{
-	if(iClient > 0 && iClient <= MaxClients && iArgs)
-	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS || g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
-		{
-			decl String:sText[192];
-			GetCmdArgString(sText, sizeof(sText));
-			TrimString(sText);
-			StripQuotes(sText);
-
-			if(sText[0])
-			{
-				if(g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS)
-				{
-					ShowWaitPassMenu(iClient, sText, true);
-				}
-				else if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
-				{
-					ShowWaitSearchMenu(iClient, sText, true);
-				}
-			}
-
-			return Plugin_Handled;
-		}
-	}
-
-	return Plugin_Continue;
 }

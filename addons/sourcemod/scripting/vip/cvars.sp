@@ -49,14 +49,6 @@ CreateCvars()
 public OnAdminFlagChange(Handle:hCvar, const String:oldValue[], const String:newValue[])
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
-	
-	if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != INVALID_HANDLE)
-	{
-		RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
-		VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-	}
-
-	AddItemsToTopMenu();
 }
 
 public OnServerIDChange(Handle:hCvar, const String:oldValue[], const String:newValue[])					g_CVAR_iServerID = GetConVarInt(hCvar);

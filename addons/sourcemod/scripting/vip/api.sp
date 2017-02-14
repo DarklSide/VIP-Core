@@ -65,8 +65,6 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	CreateNative("VIP_GetClientAccessTime",		Native_GetClientAccessTime);
 	CreateNative("VIP_SetClientAccessTime",		Native_SetClientAccessTime);
 
-	CreateNative("VIP_SetClientPassword",		Native_SetClientPassword);
-
 	CreateNative("VIP_GetVIPClientTrie",			Native_GetVIPClientTrie);
 	
 	CreateNative("VIP_GetClientAuthType",		Native_GetClientAuthType);
@@ -550,7 +548,7 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 	new iAdmin = GetNativeCell(1);
 	if(iAdmin < -1)
 	{
-		iAdmin == -1;
+		iAdmin = -1;
 	}
 
 	if(iAdmin > 0 && !(IsClientInGame(iAdmin) && !IsFakeClient(iAdmin)))
@@ -585,13 +583,13 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 
 			if(iTime == 0)
 			{
-				Clients_CreateClientVIPSettings(iClient, iTime, AuthType);
+				Clients_CreateClientVIPSettings(iClient, iTime);
 			}
 			else
 			{
 				new iCurrentTime = GetTime();
 
-				Clients_CreateClientVIPSettings(iClient, iTime+iCurrentTime, AuthType);
+				Clients_CreateClientVIPSettings(iClient, iTime+iCurrentTime);
 				Clients_CreateExpiredTimer(iClient, iTime+iCurrentTime, iCurrentTime);
 			}
 
@@ -989,7 +987,13 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[64], Handle:hArray, String:sFeatureValue[256];
+		decl String:sFeatureName[64], Handle:hArray;
+		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
+		if(!IsValidFeature(sFeatureName))
+		{
+			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", sFeatureName, sFeatureName);
+		}
+	
 		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 		{
 			decl String:sFeatureValue[256];
@@ -999,9 +1003,8 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 			{
 				Clients_CreateClientVIPSettings(iClient, 0);
 				SetTrieValue(g_hFeatures[iClient], KEY_CID, -1);
-				g_iClientInfo[iClient] |= IS_VIP;
-				g_iClientInfo[iClient] |= IS_LOADED;
-				g_iClientInfo[iClient] |= IS_AUTHORIZED;
+				SET_BIT(g_iClientInfo[iClient], IS_VIP);
+				SET_BIT(g_iClientInfo[iClient], IS_LOADED);
 			}
 
 			switch(VIP_ValueType:GetArrayCell(hArray, FEATURES_VALUE_TYPE))
@@ -1038,7 +1041,7 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 				
 				if(Function_Select != INVALID_FUNCTION)
 				{
-					NewStatus = Function_OnItemToggle(Handle:GetArrayCell(hArray, FEATURES_PLUGIN), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
+					Function_OnItemToggle(Handle:GetArrayCell(hArray, FEATURES_PLUGIN), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
 				}
 			}
 
