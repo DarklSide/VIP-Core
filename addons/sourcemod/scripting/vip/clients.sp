@@ -165,7 +165,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 				g_iClientInfo[iClient] |= IS_LOADED;
 
 				CreateForward_OnClientLoaded(iClient);
-				Clients_OnVIPClientLoaded(iClient);
 
 				if (g_CVAR_bUpdateName)
 				{
@@ -300,6 +299,8 @@ void Clients_LoadVIPFeatures(int iClient)
 			}
 		}
 	}
+
+	Clients_OnVIPClientLoaded(iClient);
 }
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)

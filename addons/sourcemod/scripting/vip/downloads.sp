@@ -1,4 +1,4 @@
-#include <sdktools>
+#include <sdktools_stringtables>
 
 void ReadDownloads()
 {
@@ -6,22 +6,31 @@ void ReadDownloads()
 	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");
 	File hFile = OpenFile(sBuffer, "r");
 
-	if (hFile != null)
+	if(hFile != null)
 	{
-		while ((hFile).EndOfFile() == false && hFile.ReadLine(sBuffer, sizeof(sBuffer)))
+		int iEndPos;
+		while (!hFile.EndOfFile() && hFile.ReadLine(SZF(sBuffer)))
 		{
-			if (sBuffer[0] && IsCharAlpha(sBuffer[0]) && StrContains(sBuffer, "//") == -1)
+			if(sBuffer[0])
 			{
-				DebugMessage("ReadFileLine: '%s'", sBuffer)
-				
-				TrimString(sBuffer);
-				//	UTIL_ReplaceChars(sBuffer, '\\', '/');
-				//  92, 47);
-				File_AddToDownloadsTable(sBuffer);
+				iEndPos = StrContains(sBuffer, "//");
+				if(iEndPos != -1)
+				{
+					sBuffer[iEndPos] = 0;
+				}
+
+				if(sBuffer[0] && IsCharAlpha(sBuffer[0]))
+				{
+					DebugMessage("ReadFileLine: '%s'", sBuffer)
+					
+					TrimString(sBuffer);
+
+					File_AddToDownloadsTable(sBuffer);
+				}
 			}
 		}
-		
-		CloseHandle(hFile);
+
+		delete hFile;
 	}
 }
 
@@ -29,13 +38,13 @@ bool File_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("File_AddToDownloadsTable: '%s'", sPath)
 	
-	if (FileExists(sPath))
+	if(FileExists(sPath))
 	{
 		DebugMessage("File '%s' Loaded", sPath)
 		
 		AddFileToDownloadsTable(sPath);
 	}
-	else if (DirExists(sPath))
+	else if(DirExists(sPath))
 	{
 		Dir_AddToDownloadsTable(sPath);
 	}
@@ -45,23 +54,22 @@ bool Dir_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("Dir_AddToDownloadsTable: '%s'", sPath)
 	
-	if (DirExists(sPath))
+	if(DirExists(sPath))
 	{
-		DirectoryListing hDir;
-		hDir = OpenDirectory(sPath);
-		if (hDir != null)
+		DirectoryListing hDir = OpenDirectory(sPath);
+		if(hDir != null)
 		{
-			char dirEntry[PLATFORM_MAX_PATH];
-			while (hDir.GetNext(dirEntry, sizeof(dirEntry)))
+			char sDirEntry[PLATFORM_MAX_PATH];
+			while (hDir.GetNext(SZF(sDirEntry)))
 			{
-				if ((UTIL_StrCmpEx(dirEntry, ".") || UTIL_StrCmpEx(dirEntry, "..")) == false)
+				if ((UTIL_StrCmpEx(sDirEntry, ".") || UTIL_StrCmpEx(sDirEntry, "..")) == false)
 				{
-					Format(dirEntry, sizeof(dirEntry), "%s/%s", sPath, dirEntry);
-					
-					File_AddToDownloadsTable(dirEntry);
+					Format(sDirEntry, sizeof(sDirEntry), "%s/%s", sPath, sDirEntry);
+
+					File_AddToDownloadsTable(sDirEntry);
 				}
 			}
-			CloseHandle(hDir);
+			delete hDir;
 		}
 	}
-} 
+}

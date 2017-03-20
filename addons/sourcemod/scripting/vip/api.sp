@@ -488,7 +488,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hQuery, const char[] sError, any UserID)
+public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResult, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{
@@ -496,7 +496,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hQuer
 	}
 	
 	int iClient = CID(UserID);
-	if (iClient && hOwner.AffectedRows)
+	if (iClient && hResult.AffectedRows)
 	{
 		Clients_CheckVipAccess(iClient, false);
 	}
@@ -523,7 +523,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 
 public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 {
-	int iClient = GetNativeCell(1);
+	int iClient = GetNativeCell(2);
 	if (CheckValidClient(iClient, false))
 	{
 		if (g_iClientInfo[iClient] & IS_VIP)
@@ -538,15 +538,16 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 		}
 		
 		char sGroup[64];
-		GetNativeString(3, SZF(sGroup));
+		GetNativeString(4, SZF(sGroup));
 		if (UTIL_CheckValidVIPGroup(sGroup))
 		{
-			int iTime = GetNativeCell(2);
+			int iTime = GetNativeCell(3);
 			if (iTime >= 0)
 			{
-				if (GetNativeCell(4))
+				if (GetNativeCell(5))
 				{
-					UTIL_ADD_VIP_PLAYER(0, iClient, _, iTime, sGroup);
+					int iAdmin = GetNativeCell(1);
+					UTIL_ADD_VIP_PLAYER(iAdmin, iClient, _, iTime, sGroup);
 				}
 				else
 				{

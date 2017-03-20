@@ -27,21 +27,20 @@ void ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
 
-	char sFeatureName[255]; File hFile;
-
 	if (g_hSortArray != null)
 	{
 		delete g_hSortArray;
 		g_hSortArray = null;
 	}
 	
+	char sFeatureName[255];
 	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
-	hFile = OpenFile(sFeatureName, "r");
+	File hFile = OpenFile(sFeatureName, "r");
 	if (hFile != null)
 	{
 		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
-		while (!(hFile).EndOfFile() && hFile.ReadLine(sFeatureName, FEATURE_NAME_LENGTH))
+		while (!hFile.EndOfFile() && hFile.ReadLine(sFeatureName, FEATURE_NAME_LENGTH))
 		{
 			DebugMessage("ReadFileLine: %s", sFeatureName)
 			TrimString(sFeatureName);
@@ -52,7 +51,7 @@ void ReadConfigs()
 			}
 		}
 		
-		CloseHandle(hFile);
+		delete hFile;
 		
 		DebugMessage("GetArraySize: %i", (g_hSortArray).Length)
 		
@@ -80,7 +79,7 @@ KeyValues CreateConfig(const char[] sFile, const char[] sKvName)
 		hKeyValues.ExportToFile(sPath);
 	}
 	
-	(hKeyValues).Rewind();
+	hKeyValues.Rewind();
 	
 	return hKeyValues;
 } 

@@ -120,7 +120,7 @@ forward void VIP_OnVIPLoaded();
 forward void VIP_OnClientLoaded(int iClient, bool bIsVIP);
 
 /**
- *	Вызывается VIP-когда игрок был загружен.
+ *	Вызывается когда VIP-игрок был загружен.
  *	-
  * @param iClient			Индекс игрока.
  *	-
@@ -282,6 +282,7 @@ native void VIP_SendClientVIPMenu(int iClient);
 /**
  *	Выдает игроку VIP-права.
  *	-
+ * @param iAdmin			Индекс админа (0 - сервер).
  * @param iClient			Индекс игрока.
  * @param iTime				Время в секундах.
  * @param sGroup			Имя VIP-группы.
@@ -289,7 +290,7 @@ native void VIP_SendClientVIPMenu(int iClient);
  *	-
  * @noreturn
 */
-native void VIP_SetClientVIP(int iClient, int iTime, const char[] sGroup, bool bAddToDB = true);
+native void VIP_SetClientVIP(int iAdmin = 0, int iClient, int iTime, const char[] sGroup, bool bAddToDB = true);
 
 /**
  *	Отнимает у игрока VIP-права.

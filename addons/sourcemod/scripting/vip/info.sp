@@ -10,7 +10,7 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 	}
 	DebugMessage("sServLang = '%s'", sServLang)
 	
-	(g_hInfo).Rewind();
+	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(sKey))
 	{
 		DebugMessage("KvJumpToKey: %s", sKey)
@@ -26,7 +26,7 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
-	(g_hInfo).Rewind();
+	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(sKey) && g_hInfo.JumpToKey(sKey2))
 	{
 		DebugMessage("KvJumpToKey: %s", sKey2)
@@ -157,4 +157,4 @@ void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOption)
 {
 	
-} 
+}

@@ -33,7 +33,7 @@ void InitVIPAdminMenu()
 	g_hVIPAdminMenu.AddItem("", "vip_reload_settings");
 }
 
-public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
+public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch (action)
 	{
@@ -41,13 +41,13 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			char sTitle[128];
 			FormatEx(sTitle, sizeof(sTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
-			(view_as<Menu>(iOption)).SetTitle(sTitle);
+			(view_as<Menu>(Item)).SetTitle(sTitle);
 		}
 		case MenuAction_DisplayItem:
 		{
 			char sDisplay[128];
 			
-			switch (iOption)
+			switch (Item)
 			{
 				case 0:FormatEx(sDisplay, sizeof(sDisplay), "%T", "MENU_ADD_VIP", iClient);
 				case 1:FormatEx(sDisplay, sizeof(sDisplay), "%T", "MENU_LIST_VIP", iClient);
@@ -60,7 +60,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		
 		case MenuAction_Select:
 		{
-			switch (iOption)
+			switch (Item)
 			{
 				case 0:
 				{
@@ -456,7 +456,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 	return 0;
 }
 */
-public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hQuery, const char[] sError, any UserID)
+public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{
@@ -464,7 +464,7 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hQuery, const c
 		return;
 	}
 	
-	if (hOwner.AffectedRows)
+	if (hResult.AffectedRows)
 	{
 		int iClient = CID(UserID);
 		if (iClient)
